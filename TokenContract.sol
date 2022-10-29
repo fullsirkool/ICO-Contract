@@ -2,17 +2,28 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract TokenContract is ERC721 {
+contract TokenContract is ERC721URIStorage {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     uint256 private MAX_SUPPLY;
-    address private _contractAddress;
+    address private _creator;
 
-    constructor(uint256 _maxSupply) ERC721("Anhihi Token", "Anhihi") {
+    constructor(uint256 _maxSupply) ERC721("Anhihi Token", "ANH") {
+        _creator = msg.sender;
         MAX_SUPPLY = _maxSupply;
+    }
+
+    function setMaxSupply(uint256 _maxSupply) external {
+        require(msg.sender == _creator, "Your are not creator!");
+        MAX_SUPPLY = _maxSupply;
+    }
+
+    function getTotalTokenNumber() external view returns (uint256 _totalTokens) {
+        _totalTokens = _tokenIdCounter.current();
     }
 
     function createToken(string memory tokenURI) public returns (uint256) {
@@ -20,9 +31,7 @@ contract TokenContract is ERC721 {
         _tokenIdCounter.increment();
         uint256 newItemId = _tokenIdCounter.current();
         _mint(msg.sender, newItemId); //mint the token
-        _setTokenURI(newItemId,  ); //generate the URI
-        setApprovalForAll(contractAddress, true); //grant transaction permission to marketplace
+        _setTokenURI(newItemId,  tokenURI); //generate the URI
         return newItemId;
     }
-
 }
