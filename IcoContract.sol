@@ -42,7 +42,7 @@ contract ICO is ERC20, Ownable, ReentrancyGuard {
       require(amount != uint256(0), "ERC20: function burn invalid input");
       require(amount <= _remainAvailabilityNumber, "ERC20: minting number more than available quantity");
 
-      _mint(_creator, amount);
+      _mint(_creator, amount * (10**uint256(decimals())));
       setRemainAvailability(amount, "-");
       success = true;
     }
