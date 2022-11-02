@@ -1,25 +1,23 @@
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0 <0.9.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.7 <0.9.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "./node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "./node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "./node_modules/@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
-contract TokenContract is ERC721URIStorage, ReentrancyGuard {
+contract NFT is ERC721URIStorage, ReentrancyGuard, Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIdCounter;
     uint256 private MAX_SUPPLY;
-    address private _creator;
 
     constructor(uint256 _maxSupply) ERC721("Anhihi Token", "ANH") {
-        _creator = msg.sender;
         MAX_SUPPLY = _maxSupply;
     }
 
-    function setMaxSupply(uint256 _maxSupply) external {
-        require(msg.sender == _creator, "Your are not creator!");
+    function setMaxSupply(uint256 _maxSupply) external onlyOwner {
         MAX_SUPPLY = _maxSupply;
     }
 
@@ -31,7 +29,7 @@ contract TokenContract is ERC721URIStorage, ReentrancyGuard {
         require(_tokenIdCounter.current() < MAX_SUPPLY, "I'm sorry number of token reached the cap");
         _tokenIdCounter.increment();
         uint256 newItemId = _tokenIdCounter.current();
-        _mint(msg.sender, newItemId); //mint the token
+        _safeMint(msg.sender, newItemId); //mint the token
         _setTokenURI(newItemId,  tokenURI); //generate the URI
         return newItemId;
     }
